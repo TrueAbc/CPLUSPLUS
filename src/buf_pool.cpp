@@ -2,9 +2,10 @@
 // Created by TrueAbc on 2021/8/11.
 //
 
+
 #include "buf_pool.h"
 
-void pointer_test(void *ptr, std::string state){
+void pointer_test(void *ptr, const char *state){
     if(ptr == nullptr){
         fprintf(stderr, state);
         exit(1);
@@ -122,7 +123,6 @@ io_buf *buf_pool::alloc_buf(int N) {
     } else if (N <= m8M){
         index = m8M;
     } else {
-        index = NULL;
         fprintf(stderr, "too much memory asked");
         exit(1);
     }

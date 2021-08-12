@@ -6,6 +6,7 @@
 #define LARS_TCP_SERVER_H
 
 #include <netinet/in.h>
+#include "reactor_buf.h"
 
 class tcp_server{
     int _sockfd;

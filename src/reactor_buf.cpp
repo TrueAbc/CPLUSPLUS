@@ -3,6 +3,7 @@
 //
 
 #include "reactor_buf.h"
+#include <sys/ioctl.h>
 
 reactor_buf::reactor_buf() {
     _buf = nullptr;
@@ -14,7 +15,7 @@ reactor_buf::~reactor_buf() {
 
 void reactor_buf::clear() {
     if(_buf != nullptr){
-        buf_pool::instance()->revert(_buf)
+        buf_pool::instance()->revert(_buf);
         _buf = nullptr;
     }
 }

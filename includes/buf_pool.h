@@ -6,18 +6,20 @@
 #define LARS_BUF_POOL_H
 
 #include <ext/hash_map>
+#include <cstring>
 #include "io_buf.h"
+
 
 typedef __gnu_cxx::hash_map<int, io_buf*> pool_t;
 
 enum MEM_CAP{
-    m4K = 2 << 12;
-    m16K = 2 << 14;
-    m64K = 2 << 16;
-    m256K = 2 << 18;
-    m1M = 2 << 20;
-    m4M = 2 << 22;
-    m8M = 2 << 24;
+    m4K = 2 << 12,
+    m16K = 2 << 14,
+    m64K = 2 << 16,
+    m256K = 2 << 18,
+    m1M = 2 << 20,
+    m4M = 2 << 22,
+    m8M = 2 << 24,
 };
 
 // 限制总的内存大小, 单位是5GB

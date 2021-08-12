@@ -35,8 +35,9 @@ tcp_server::tcp_server(const char *ip, uint16_t port) {
     struct sockaddr_in server_addr;
     bzero(&server_addr, sizeof (server_addr));
     server_addr.sin_family = AF_INET;
-    inet_aton(ip, &server_addr.sin_addr);
     server_addr.sin_port = htons(port);
+    server_addr.sin_addr.s_addr = INADDR_ANY;
+            //inet_addr(INADDR_ANY);
 
     // 2-1 可以多次监听, 设置REUSE属性
     int op = 1;
@@ -44,8 +45,15 @@ tcp_server::tcp_server(const char *ip, uint16_t port) {
         fprintf(stderr, "setsocket opt SO_REUSERADDR\n");
     }
 
-    if(bind(_sockfd, (const struct sockaddr*)&server_addr, sizeof (server_addr))){
+    if(bind(_sockfd, (const struct sockaddr*)&server_addr, sizeof (server_addr)) < 0){
         fprintf(stderr, "bind error\n");
+        if (errno == EADDRINUSE){
+            fprintf(stderr, "addr in use\n");
+        } else if(errno == EINVAL){
+            fprintf(stderr, "port in use\n");
+        } else{
+            fprintf(stderr, "nothing in use\n");
+        }
         exit(1);
     }
 
@@ -77,18 +85,45 @@ void tcp_server::do_accept() {
             }
         } else{
             // TODO 添加心跳机制
-            int writed;
-            char *data = "hello Lars\n";
-            do{
-                writed = write(connfd, data, strlen(data) + 1);
-            } while (writed == -1 && errno == EINTR);
+            printf("link to fd ok\n");
+            int ret = 0;
+            input_buf ibuf;
+            out_buf obuf;
 
-            if(writed > 0) {
-                printf("succeed write\n");
-            }
-            if (writed == -1 && errno == EAGAIN){
-                writed = 0;// 非错误, 返回0
-            }
+            char *msg = nullptr;
+            int msg_len = 0;
+            do {
+                ret = ibuf.read_data(connfd);
+                if (ret == -1){
+                    fprintf(stderr, "ibuf read data error\n");
+                    break;
+                }
+                printf("ibuf.length = %d\n", ibuf.length());
+
+                msg_len = ibuf.length();
+                msg = (char *) malloc(msg_len);
+                bzero(msg, msg_len);
+                memcpy(msg, ibuf.data(), msg_len);
+                ibuf.pop(msg_len);
+                ibuf.adjust();
+
+                printf("recv data=%s\n", msg);
+
+                obuf.send_data(msg, msg_len);
+                while (obuf.length()){
+                    int write_ret = obuf.write2fd(connfd);
+                    if(write_ret == -1){
+                        fprintf(stderr, "write connfd error\n");
+                        return;
+                    } else if(write_ret == 0){
+                        break;
+                    }
+                }
+
+                free(msg);
+            } while (ret != 0);
+
+            close(connfd);
         }
     }
 }

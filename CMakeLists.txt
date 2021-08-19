@@ -4,6 +4,7 @@ project(Lars)
 set(CMAKE_CXX_STANDARD 14)
 set(SERVER_CLASS tcp_server)
 set(BUF_TOOL buf_tool)
+set(EVENT_TOOL KQUEUE)
 
 SET(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/libs)
 SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
@@ -23,6 +24,11 @@ add_library(${BUF_TOOL} SHARED
         src/reactor_buf.cpp
         src/buf_pool.cpp)
 
+add_library(
+        ${EVENT_TOOL} SHARED
+        src/event_loop.cpp
+)
+
 add_library(${SERVER_CLASS} SHARED
         src/tcp_server.cpp)
 
@@ -35,6 +41,7 @@ add_subdirectory(
 target_link_libraries(
         ${SERVER_CLASS}
         ${BUF_TOOL}
+        ${EVENT_TOOL}
 )
 
 target_link_libraries(Lars

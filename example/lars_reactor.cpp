@@ -5,8 +5,9 @@
 #include "tcp_server.h"
 
 int main(){
-    tcp_server server("127.0.0.1", 7777);
-    server.do_accept();
+    event_loop loop;
+    tcp_server server(&loop, "127.0.0.1", 7777);
+    loop.event_process();
 
     return 0;
 }

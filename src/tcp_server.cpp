@@ -11,8 +11,24 @@
 #include <cerrno>
 #include "tcp_server.h"
 
+
+struct message{
+    char data[m4K];
+    char len;
+};
+
+struct message msg;
+
+void server_rd_callback(event_loop* loop, int fd, void *args);
+void server_wt_callback(event_loop* loop, int fd, void *args);
+
+void accept_callback(event_loop *loop, int fd, void *args){
+    tcp_server *server = (tcp_server*)args;
+    server->do_accept();
+}
+
 // 构造函数
-tcp_server::tcp_server(const char *ip, uint16_t port) {
+tcp_server::tcp_server(event_loop *loop ,const char *ip, uint16_t port) {
     bzero(&_connaddr, sizeof (_connaddr));
 
     // 忽略一些信号
@@ -62,6 +78,9 @@ tcp_server::tcp_server(const char *ip, uint16_t port) {
         fprintf(stderr, "listen error\n");
         exit(1);
     }
+
+    _loop = loop;
+    _loop->add_io_event(_sockfd, accept_callback, kReadEvent, this);
 }
 
 // 开始提供创建链接的服务
@@ -85,49 +104,66 @@ void tcp_server::do_accept() {
             }
         } else{
             // TODO 添加心跳机制
-            printf("link to fd ok\n");
-            int ret = 0;
-            input_buf ibuf;
-            out_buf obuf;
-
-            char *msg = nullptr;
-            int msg_len = 0;
-            do {
-                ret = ibuf.read_data(connfd);
-                if (ret == -1){
-                    fprintf(stderr, "ibuf read data error\n");
-                    break;
-                }
-                printf("ibuf.length = %d\n", ibuf.length());
-
-                msg_len = ibuf.length();
-                msg = (char *) malloc(msg_len);
-                bzero(msg, msg_len);
-                memcpy(msg, ibuf.data(), msg_len);
-                ibuf.pop(msg_len);
-                ibuf.adjust();
-
-                printf("recv data=%s\n", msg);
-
-                obuf.send_data(msg, msg_len);
-                while (obuf.length()){
-                    int write_ret = obuf.write2fd(connfd);
-                    if(write_ret == -1){
-                        fprintf(stderr, "write connfd error\n");
-                        return;
-                    } else if(write_ret == 0){
-                        break;
-                    }
-                }
-
-                free(msg);
-            } while (ret != 0);
-
-            close(connfd);
+            this->_loop->add_io_event(connfd, server_rd_callback, kReadEvent, &msg);
+            break;
         }
     }
 }
 
 tcp_server::~tcp_server() {
     close(_sockfd);
+}
+
+
+void server_rd_callback(event_loop* loop, int fd, void *args){
+    int ret = 0;
+    struct message *msg = (struct message*)args;
+    input_buf ibuf;
+    ret = ibuf.read_data(fd);
+    if(ret == -1){
+        fprintf(stderr, "ibuf read data error\n");
+        loop->del_io_event(fd, kReadEvent);
+        close(fd);
+        return;
+    }
+
+    if(ret == 0){
+        loop->del_io_event(fd, kReadEvent);
+        close(fd);
+        return;
+    }
+
+    printf("ibuf.length()=%d\n", ibuf.length());
+
+    msg->len = ibuf.length();
+    bzero(msg->data, msg->len);
+    memcpy(msg->data, ibuf.data(), msg->len);
+
+    ibuf.pop(msg->len);
+    ibuf.adjust();
+
+    printf("recv data = %s\n", msg->data);
+
+    // 删除读取事件, 添加写事件, 针对kqueue没有必要
+    loop->del_io_event(fd, kReadEvent);
+    loop->add_io_event(fd, server_wt_callback, kWriteEvent, msg);
+}
+
+void server_wt_callback(event_loop *loop, int fd, void *args){
+    struct message *msg = (struct  message *)args;
+    out_buf obuf;
+
+    obuf.send_data(msg->data, msg->len);
+    // 回显数据
+    while(obuf.length()){
+        int write_ret = obuf.write2fd(fd);
+        if(write_ret == -1){
+            fprintf(stderr, "write connfd error\n");
+            return;
+        } else if(write_ret == 0){
+            break; // 不是错误, 表示此时不可写
+        }
+    }
+    loop->del_io_event(fd, kWriteEvent);
+    loop->add_io_event(fd, server_rd_callback, kReadEvent, msg);
 }

@@ -1,10 +1,14 @@
 cmake_minimum_required(VERSION 3.20)
 project(Lars)
 
+set(CMAKE_C_COMPILER gcc)
+set(CMAKE_CXX_COMPILER g++)
+
 set(CMAKE_CXX_STANDARD 14)
 set(SERVER_CLASS tcp_server)
 set(BUF_TOOL buf_tool)
-set(EVENT_TOOL KQUEUE)
+set(EVENT_TOOL kqueue)
+set(CONN_MANAGER tcp_conn)
 
 SET(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/libs)
 SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
@@ -29,6 +33,11 @@ add_library(
         src/event_loop.cpp
 )
 
+add_library(
+        ${CONN_MANAGER} SHARED
+        src/tcp_conn.cpp
+)
+
 add_library(${SERVER_CLASS} SHARED
         src/tcp_server.cpp)
 
@@ -39,9 +48,15 @@ add_subdirectory(
 )
 
 target_link_libraries(
-        ${SERVER_CLASS}
+        ${CONN_MANAGER}
         ${BUF_TOOL}
         ${EVENT_TOOL}
+)
+
+# server
+target_link_libraries(
+        ${SERVER_CLASS}
+        ${CONN_MANAGER}
 )
 
 target_link_libraries(Lars

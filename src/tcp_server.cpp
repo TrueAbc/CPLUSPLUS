@@ -10,6 +10,7 @@
 #include <unistd.h>
 #include <cerrno>
 #include "tcp_server.h"
+#include "tcp_conn.h"
 
 
 struct message{
@@ -104,7 +105,12 @@ void tcp_server::do_accept() {
             }
         } else{
             // TODO 添加心跳机制
-            this->_loop->add_io_event(connfd, server_rd_callback, kReadEvent, &msg);
+            tcp_conn *conn = new tcp_conn(connfd, _loop);
+            if(conn == nullptr){
+                fprintf(stderr, "new tcp_conn error\n");
+                exit(1);
+            }
+            printf("get new connection succ!\n");
             break;
         }
     }

@@ -6,6 +6,7 @@
 #include <sys/socket.h>
 #include <netinet/tcp.h>
 
+#include "tcp_server.h"
 #include "tcp_conn.h"
 #include "message.h"
 
@@ -32,12 +33,14 @@ tcp_conn::tcp_conn(int connfd, event_loop *loop) {
     _loop = loop;
     // 1. 将connfd设置为非阻塞状态
     int flag = fcntl(_connfd, F_GETFL, 0);
+    fcntl(_connfd, F_SETFL, O_NONBLOCK | flag);
 
     // 2. 设置tcp_nodelay 禁止做读写缓存, 降低小包延迟
     int op;
     setsockopt(_connfd, F_SETFL, O_NONBLOCK | flag, &op, sizeof (op));
 
     _loop->add_io_event(_connfd, conn_rd_callback, kReadEvent, this);
+    tcp_server::increase_conn(_connfd, this);
 }
 
 void tcp_conn::do_read() {
@@ -136,7 +139,10 @@ int tcp_conn::send_message(const char *data, int msglen, int msgid) {
 
 void tcp_conn::clean_conn() {
 
+    tcp_server::decrease_conn(_connfd);
+
     _loop->del_io_event(_connfd);
+
     ibuf.clear();
     obuf.clear();
 

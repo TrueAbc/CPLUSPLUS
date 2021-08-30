@@ -7,6 +7,8 @@
 #include "reactor_buf.h"
 #include "event_loop.h"
 
+class tcp_server;
+
 class tcp_conn{
 public:
     tcp_conn(int connfd, event_loop* loop);

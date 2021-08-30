@@ -12,13 +12,32 @@
 #include "tcp_server.h"
 #include "tcp_conn.h"
 
+// ===== 链接资源管理 =====
+tcp_conn **tcp_server::conns = nullptr;
 
-struct message{
-    char data[m4K];
-    char len;
-};
+int tcp_server::_max_conns = 0;
+int tcp_server::_curr_conns = 0;
+pthread_mutex_t tcp_server::_conns_mutex = PTHREAD_MUTEX_INITIALIZER;
 
-struct message msg;
+void tcp_server::increase_conn(int connfd, tcp_conn *conn) {
+    pthread_mutex_lock(&_conns_mutex);
+    conns[connfd] = conn;
+    _curr_conns++;
+    pthread_mutex_unlock(&_conns_mutex);
+}
+
+void tcp_server::decrease_conn(int connfd) {
+    pthread_mutex_lock(&_conns_mutex);
+    conns[connfd] = nullptr;
+    _curr_conns--;
+    pthread_mutex_unlock(&_conns_mutex);
+}
+
+void tcp_server::get_conn_num(int *curr_conn) {
+    pthread_mutex_lock(&_conns_mutex);
+    *curr_conn = _curr_conns;
+    pthread_mutex_unlock(&_conns_mutex);
+}
 
 void accept_callback(event_loop *loop, int fd, void *args){
     tcp_server *server = (tcp_server*)args;
@@ -77,8 +96,13 @@ tcp_server::tcp_server(event_loop *loop ,const char *ip, uint16_t port) {
         exit(1);
     }
 
+    // 5. 将sockfd加入到event_loop中
     _loop = loop;
     _loop->add_io_event(_sockfd, accept_callback, kReadEvent, this);
+
+    // 6. 链接管理
+    _max_conns = MAX_CONNS;
+    conns = new tcp_conn*[_max_conns+3]; // stdin, stdout, stderr已经占了前三个位置
 }
 
 // 开始提供创建链接的服务
@@ -102,12 +126,20 @@ void tcp_server::do_accept() {
             }
         } else{
             // TODO 添加心跳机制
-            tcp_conn *conn = new tcp_conn(connfd, _loop);
-            if(conn == nullptr){
-                fprintf(stderr, "new tcp_conn error\n");
-                exit(1);
+            int cur_conns;
+            get_conn_num(&cur_conns);
+
+            if(cur_conns >= _max_conns){
+                fprintf(stderr, "too many connections, max=%d\n", _max_conns);
+            } else{
+                tcp_conn *conn = new tcp_conn(connfd, _loop);
+                if(conn == nullptr){
+                    fprintf(stderr, "new tcp_conn error\n");
+                    exit(1);
+                }
+                printf("get new connection succ!\n");
+
             }
-            printf("get new connection succ!\n");
             break;
         }
     }

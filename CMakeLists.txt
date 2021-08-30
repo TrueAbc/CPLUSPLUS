@@ -3,13 +3,13 @@ project(Lars)
 
 set(CMAKE_C_COMPILER gcc)
 set(CMAKE_CXX_COMPILER g++)
-
 set(CMAKE_CXX_STANDARD 14)
+
 set(SERVER_CLASS tcp_server)
 set(BUF_TOOL buf_tool)
 set(EVENT_TOOL kqueue)
-set(CONN_MANAGER tcp_conn)
 
+set(CONN_MANAGER tcp_conn)
 set(TCP_CLIENT tcp_client)
 
 SET(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/libs)
@@ -40,12 +40,13 @@ add_library(
         src/tcp_client.cpp
 )
 
+# 两个库之间有相互引用, 不能是动态库
 add_library(
-        ${CONN_MANAGER} SHARED
+        ${CONN_MANAGER} STATIC
         src/tcp_conn.cpp
 )
 
-add_library(${SERVER_CLASS} SHARED
+add_library(${SERVER_CLASS} STATIC
         src/tcp_server.cpp)
 
 add_subdirectory(
@@ -58,12 +59,7 @@ target_link_libraries(
         ${EVENT_TOOL}
 )
 
-target_link_libraries(
-        ${TCP_CONN}
-        ${BUF_TOOL}
-        ${EVENT_TOOL}
-)
-
+# 仅仅源文件包含了tcp_server
 target_link_libraries(
         ${CONN_MANAGER}
         ${BUF_TOOL}

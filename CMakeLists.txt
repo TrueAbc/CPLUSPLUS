@@ -10,6 +10,8 @@ set(BUF_TOOL buf_tool)
 set(EVENT_TOOL kqueue)
 set(CONN_MANAGER tcp_conn)
 
+set(TCP_CLIENT tcp_client)
+
 SET(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/libs)
 SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 
@@ -34,6 +36,11 @@ add_library(
 )
 
 add_library(
+    ${TCP_CLIENT} SHARED
+        src/tcp_client.cpp
+)
+
+add_library(
         ${CONN_MANAGER} SHARED
         src/tcp_conn.cpp
 )
@@ -41,10 +48,20 @@ add_library(
 add_library(${SERVER_CLASS} SHARED
         src/tcp_server.cpp)
 
-add_executable(Lars main.cpp)
-
 add_subdirectory(
         ${PROJECT_SOURCE_DIR}/example
+)
+
+target_link_libraries(
+        ${TCP_CLIENT}
+        ${BUF_TOOL}
+        ${EVENT_TOOL}
+)
+
+target_link_libraries(
+        ${TCP_CONN}
+        ${BUF_TOOL}
+        ${EVENT_TOOL}
 )
 
 target_link_libraries(
@@ -57,8 +74,4 @@ target_link_libraries(
 target_link_libraries(
         ${SERVER_CLASS}
         ${CONN_MANAGER}
-)
-
-target_link_libraries(Lars
-        ${SERVER_CLASS}
 )

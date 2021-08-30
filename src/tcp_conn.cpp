@@ -102,7 +102,7 @@ void tcp_conn::do_write() {
 }
 
 int tcp_conn::send_message(const char *data, int msglen, int msgid) {
-    printf("serer send message:%s:%d, msgid=%d\n", data, msglen, msgid);
+    printf("send message:%s:%d, msgid=%d\n", data, msglen, msgid);
     bool active_epollout = false;
     if(obuf.length() == 0){
         // 数据发送完成, 激活写事件
@@ -127,7 +127,7 @@ int tcp_conn::send_message(const char *data, int msglen, int msgid) {
         return -1;
     }
 
-    if(active_epollout == true){
+    if(active_epollout){
         // 激活epollout事件
         _loop->add_io_event(_connfd, conn_wt_callback, kWriteEvent, this);
     }

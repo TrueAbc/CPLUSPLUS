@@ -20,9 +20,6 @@ struct message{
 
 struct message msg;
 
-void server_rd_callback(event_loop* loop, int fd, void *args);
-void server_wt_callback(event_loop* loop, int fd, void *args);
-
 void accept_callback(event_loop *loop, int fd, void *args){
     tcp_server *server = (tcp_server*)args;
     server->do_accept();
@@ -118,58 +115,4 @@ void tcp_server::do_accept() {
 
 tcp_server::~tcp_server() {
     close(_sockfd);
-}
-
-
-void server_rd_callback(event_loop* loop, int fd, void *args){
-    int ret = 0;
-    struct message *msg = (struct message*)args;
-    input_buf ibuf;
-    ret = ibuf.read_data(fd);
-    if(ret == -1){
-        fprintf(stderr, "ibuf read data error\n");
-        loop->del_io_event(fd, kReadEvent);
-        close(fd);
-        return;
-    }
-
-    if(ret == 0){
-        loop->del_io_event(fd, kReadEvent);
-        close(fd);
-        return;
-    }
-
-    printf("ibuf.length()=%d\n", ibuf.length());
-
-    msg->len = ibuf.length();
-    bzero(msg->data, msg->len);
-    memcpy(msg->data, ibuf.data(), msg->len);
-
-    ibuf.pop(msg->len);
-    ibuf.adjust();
-
-    printf("recv data = %s\n", msg->data);
-
-    // 删除读取事件, 添加写事件, 针对kqueue没有必要
-    loop->del_io_event(fd, kReadEvent);
-    loop->add_io_event(fd, server_wt_callback, kWriteEvent, msg);
-}
-
-void server_wt_callback(event_loop *loop, int fd, void *args){
-    struct message *msg = (struct  message *)args;
-    out_buf obuf;
-
-    obuf.send_data(msg->data, msg->len);
-    // 回显数据
-    while(obuf.length()){
-        int write_ret = obuf.write2fd(fd);
-        if(write_ret == -1){
-            fprintf(stderr, "write connfd error\n");
-            return;
-        } else if(write_ret == 0){
-            break; // 不是错误, 表示此时不可写
-        }
-    }
-    loop->del_io_event(fd, kWriteEvent);
-    loop->add_io_event(fd, server_rd_callback, kReadEvent, msg);
 }

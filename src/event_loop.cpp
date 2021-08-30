@@ -16,7 +16,6 @@ event_loop::event_loop() {
 void event_loop::event_process() {
     while (true){
         io_event_map_it  ev_it;
-
         int nfds = kevent(_epfd, nullptr, 0, _fired_evs, MAXEVENTS, nullptr);
         for (int i = 0; i < nfds; ++i) {
             int fd = (int)(intptr_t )_fired_evs[i].udata;
@@ -24,11 +23,11 @@ void event_loop::event_process() {
             assert(ev_it != _io_evs.end());
 
             io_event* ev = &(ev_it->second);
-            if(_fired_evs[i].filter == EVFILT_READ && ev->mask == kReadEvent){
+            if(_fired_evs[i].filter == EVFILT_READ && (ev->mask & kReadEvent)){
                 //  读取事件
                 void *args=ev->rcb_args;
                 ev->read_callback(this, fd, args);
-            }else if(_fired_evs[i].filter == EVFILT_WRITE && ev->mask == kWriteEvent){
+            }else if(_fired_evs[i].filter == EVFILT_WRITE && (ev->mask & kWriteEvent)){
                 void *args = ev->wcb_args;
                 ev->write_callback(this, fd, args);
             }else if(_fired_evs[i].flags & EV_EOF) {

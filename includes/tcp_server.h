@@ -9,6 +9,7 @@
 #include "reactor_buf.h"
 #include "event_loop.h"
 #include "tcp_conn.h"
+#include "message.h"
 
 class tcp_server{
     int _sockfd;
@@ -31,6 +32,12 @@ public:
     static void get_conn_num(int *curr_conn);
     static tcp_conn **conns;
 
+    static msg_router router;
+
+    void add_msg_router(int msgid, msg_callback* cb, void *user_data= nullptr){
+        router.register_msg_router(msgid, cb, user_data);
+    }
+
 private:
     //todo 从配置文件读取
 #define MAX_CONNS 2
@@ -38,6 +45,7 @@ private:
 
     static int _curr_conns;
     static pthread_mutex_t  _conns_mutex; // 保护修改的锁
+
 };
 
 #endif //LARS_TCP_SERVER_H

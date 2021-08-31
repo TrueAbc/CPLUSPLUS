@@ -13,12 +13,9 @@
 #include "buf_pool.h"
 #include "event_loop.h"
 #include "message.h"
+#include "net_connection.h"
 
-class tcp_client;
-
-typedef void msg_callback(const char*data, uint32_t len, int msgid, tcp_client *conn, void *userdata);
-
-class tcp_client{
+class tcp_client: public net_connection{
 public:
     tcp_client(event_loop *loop, const char *ip, unsigned  short port, const char *name);
 
@@ -34,9 +31,9 @@ public:
 
     ~tcp_client();
 
-    void set_msg_callback(msg_callback *msg_cb){
-        this->_msg_callback = msg_cb;
-    }
+   void add_msg_router(int msgid, msg_callback* msg_cb, void *user_data= nullptr){
+       router.register_msg_router(msgid, msg_cb, user_data);
+   }
 
     bool connected;// 链接是否创建成功
     struct sockaddr_in _server_addr;
@@ -51,6 +48,6 @@ private:
 
     const char * _name; //  用于记录日志的客户端名称
 
-    msg_callback* _msg_callback;
+    msg_router router;
 };
 #endif //LARS_TCP_CLIENT_H

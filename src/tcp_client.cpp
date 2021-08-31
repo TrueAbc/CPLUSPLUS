@@ -45,7 +45,7 @@ tcp_client::tcp_client(event_loop *loop, const char *ip, unsigned short port, co
 _ibuf(m1M),
 _obuf(m1M){
     _sockfd = -1;
-    _msg_callback = nullptr;
+    router = msg_router();
     _name = name;
     _loop = loop;
 
@@ -89,6 +89,8 @@ void tcp_client::do_connect() {
         const char *msg = "hello lars!";
         int msgid = 1;
         this->send_message(msg, strlen(msg), msgid);
+
+        this->send_message(msg, strlen(msg), 2);
     } else{
         if(errno == EINPROGRESS){
             // fd是非阻塞的, 可能出现, 但是并不表示失败的创建
@@ -148,9 +150,7 @@ int tcp_client::do_read() {
         _ibuf.pop(MESSAGE_HEAD_LEN);
 
         // 3. 交给业务处理函数
-        if(_msg_callback != nullptr){
-            this->_msg_callback(_ibuf.data + _ibuf.head, length, msgid, this, nullptr);
-        }
+        router.call(msgid, length, _ibuf.data + _ibuf.head, this);
         _ibuf.pop(length);
     }
 

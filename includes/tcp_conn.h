@@ -6,10 +6,11 @@
 #define LARS_TCP_CONN_H
 #include "reactor_buf.h"
 #include "event_loop.h"
+#include "net_connection.h"
 
 class tcp_server;
 
-class tcp_conn{
+class tcp_conn: public net_connection{
 public:
     tcp_conn(int connfd, event_loop* loop);
 

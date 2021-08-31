@@ -75,7 +75,7 @@ void tcp_conn::do_read() {
         ibuf.pop(MESSAGE_HEAD_LEN);
         printf("read data:%s\n", ibuf.data());
 
-        callback_busi(ibuf.data(), head.msglen, head.msgid, NULL, this);
+        tcp_server::router.call(head.msgid, head.msglen, ibuf.data(), this);
         ibuf.pop(head.msglen);
     }
 

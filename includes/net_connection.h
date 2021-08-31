@@ -12,4 +12,8 @@ class net_connection{
 public:
     virtual int send_message(const char *data, int datalen, int msgid)=0;
 };
+
+// 创建链接/ 销毁链接触发的回调函数
+
+typedef void (*conn_callback)(net_connection *conn, void *args);
 #endif //LARS_NET_CONNECTION_H

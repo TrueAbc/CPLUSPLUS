@@ -35,6 +35,25 @@ public:
        router.register_msg_router(msgid, msg_cb, user_data);
    }
 
+   void set_conn_cb(conn_callback cb, void *args= nullptr, int flag=0){
+       switch (flag) {
+           case 0:
+               _conn_start_cb = cb;
+               _conn_start_cb_args = args;
+               break;
+           case 1:
+               _conn_close_cb = cb;
+               _conn_close_cb_args = args;
+               break;
+       };
+   }
+
+   conn_callback _conn_start_cb;
+   void* _conn_start_cb_args;
+
+   conn_callback  _conn_close_cb;
+   void * _conn_close_cb_args;
+
     bool connected;// 链接是否创建成功
     struct sockaddr_in _server_addr;
     io_buf _obuf;

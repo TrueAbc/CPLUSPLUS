@@ -46,6 +46,23 @@ private:
     static int _curr_conns;
     static pthread_mutex_t  _conns_mutex; // 保护修改的锁
 
+public:
+    // 创建和销毁链接的回调函数
+    static void set_conn_start(conn_callback cb, void *args= nullptr){
+        conn_start_cb = cb;
+        conn_start_cb_args = args;
+    }
+
+    static void set_conn_close(conn_callback cb, void *args= nullptr){
+        conn_close_cb = cb;
+        conn_close_cb_args = args;
+    }
+
+    static conn_callback conn_start_cb;
+    static void *conn_start_cb_args;
+
+    static conn_callback conn_close_cb;
+    static void *conn_close_cb_args;
 };
 
 #endif //LARS_TCP_SERVER_H

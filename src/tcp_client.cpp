@@ -28,6 +28,10 @@ static void connection_delay(event_loop *loop, int fd, void *args){
         // 链接是成功的
         printf("connect %s:%d succ!\n", inet_ntoa(cli->_server_addr.sin_addr), ntohs(cli->_server_addr.sin_port));
 
+        if(cli->_conn_start_cb != nullptr){
+            cli->_conn_start_cb(cli, cli->_conn_start_cb_args);
+        }
+
         const char *msg = "hello lars!";
         int msgid = 1;
         cli->send_message(msg, strlen(msg), msgid);
@@ -48,6 +52,9 @@ _obuf(m1M){
     router = msg_router();
     _name = name;
     _loop = loop;
+
+    _conn_start_cb = nullptr;
+    _conn_close_cb = nullptr;
 
     bzero(&_server_addr, sizeof (_server_addr));
     _server_addr.sin_family = AF_INET;
@@ -84,6 +91,11 @@ void tcp_client::do_connect() {
         if(this->_obuf.length != 0){
             _loop->add_io_event(_sockfd, write_callback, kWriteEvent, this);
         }
+
+        if(_conn_start_cb ){
+            _conn_start_cb(this, _conn_start_cb_args);
+        }
+
         printf("connect %s:%d succ!\n", inet_ntoa(_server_addr.sin_addr), ntohs(_server_addr.sin_port));
 
         const char *msg = "hello lars!";
@@ -189,6 +201,7 @@ int tcp_client::do_write() {
 
 // 释放并重新链接
 void tcp_client::clean_conn() {
+
     if(_sockfd != -1){
         printf("clean conn, del socket!\n");
         _loop->del_io_event(_sockfd);
@@ -196,6 +209,11 @@ void tcp_client::clean_conn() {
     }
 
     connected = false;
+
+    if(_conn_close_cb ){
+        _conn_close_cb(this, _conn_close_cb_args);
+    }
+
     this->do_connect();
 }
 

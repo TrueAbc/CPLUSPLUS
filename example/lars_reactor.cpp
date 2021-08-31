@@ -5,7 +5,6 @@
 #include "tcp_server.h"
 
 // 回显业务的回调函数
-
 void callback_busi(const char *data, uint32_t len, int msgid, net_connection *conn, void *user_data){
     printf("callback busi...\n");
     conn->send_message(data, len, msgid);
@@ -17,11 +16,25 @@ void print_busi(const char *data, uint32_t len, int msgid, net_connection *conn,
     printf("len:[%d]\n\n", len);
 }
 
+// 创建和销毁的回调函数
+void on_client_build(net_connection *conn, void *args){
+    int msgid=101;
+    const char *msg = "welcome! you on line---------";
+    conn->send_message(msg, strlen(msg), msgid);
+}
+
+void on_client_lost(net_connection* conn, void *args){
+    printf("connection is lost\n");
+}
+
 int main(){
     event_loop loop;
     tcp_server server(&loop, "127.0.0.1", 7777);
     server.add_msg_router(1, callback_busi);
     server.add_msg_router(2, print_busi);
+
+    server.set_conn_start(on_client_build);
+    server.set_conn_close(on_client_lost);
 
     loop.event_process();
 

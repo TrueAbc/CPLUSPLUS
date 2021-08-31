@@ -21,6 +21,12 @@ pthread_mutex_t tcp_server::_conns_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 msg_router tcp_server::router;
 
+conn_callback tcp_server::conn_start_cb = nullptr;
+conn_callback tcp_server::conn_close_cb = nullptr;
+
+void* tcp_server::conn_start_cb_args = nullptr;
+void * tcp_server::conn_close_cb_args = nullptr;
+
 void tcp_server::increase_conn(int connfd, tcp_conn *conn) {
     pthread_mutex_lock(&_conns_mutex);
     conns[connfd] = conn;

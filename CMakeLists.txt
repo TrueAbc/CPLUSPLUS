@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 3.20)
 project(Lars)
 
+add_compile_options(
+ -XLinker
+)
+
 set(CMAKE_C_COMPILER gcc)
 set(CMAKE_CXX_COMPILER g++)
 set(CMAKE_CXX_STANDARD 14)
@@ -40,14 +44,15 @@ add_library(
         src/tcp_client.cpp
 )
 
-# 两个库之间有相互引用, 不能是动态库
+## 两个库之间有相互引用, 不能是动态库
 add_library(
         ${CONN_MANAGER} STATIC
         src/tcp_conn.cpp
 )
 
 add_library(${SERVER_CLASS} STATIC
-        src/tcp_server.cpp)
+        src/tcp_server.cpp
+        )
 
 add_subdirectory(
         ${PROJECT_SOURCE_DIR}/example
@@ -62,12 +67,19 @@ target_link_libraries(
 # 仅仅源文件包含了tcp_server
 target_link_libraries(
         ${CONN_MANAGER}
+
         ${BUF_TOOL}
         ${EVENT_TOOL}
+        ${SEVER_CLASS}
+
 )
 
 # server
 target_link_libraries(
         ${SERVER_CLASS}
-        ${CONN_MANAGER}
+
+        ${BUF_TOOL}
+        ${EVENT_TOOL}
+
+#        ${CONN_MANAGER}
 )

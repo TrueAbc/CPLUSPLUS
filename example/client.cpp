@@ -8,7 +8,18 @@
 void busi(const char*data, uint32_t len, int msgid, net_connection *conn, void *userdata){
     printf("\nrecv server:[%s]\n", data);
     printf("msgid:[%d]\n", msgid);
-    printf("len:[%d]\n\n", len);
+    printf("len:[%d], strlen(%d)\n\n", len, strlen(data));
+}
+
+void on_client_build(net_connection* conn, void* args){
+    int msgid=1;
+    const char *msg="Hello Lars!";
+    conn->send_message(msg, strlen(msg), msgid);
+}
+
+void on_client_lost(net_connection *conn, void *args){
+    printf("on client lost ...\n");
+    printf("client is lost!\n");
 }
 
 int main(){
@@ -16,6 +27,10 @@ int main(){
     tcp_client client(&loop, "127.0.0.1", 7777, "clientv0.4");
 
     client.add_msg_router(1, busi);
+    client.add_msg_router(101, busi);
+
+    client.set_conn_cb(on_client_build);
+    client.set_conn_cb(on_client_lost, nullptr, 1);
     loop.event_process();
     return 0;
 }

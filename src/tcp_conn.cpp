@@ -39,6 +39,10 @@ tcp_conn::tcp_conn(int connfd, event_loop *loop) {
     int op;
     setsockopt(_connfd, F_SETFL, O_NONBLOCK | flag, &op, sizeof (op));
 
+    if(tcp_server::conn_start_cb){
+        tcp_server::conn_start_cb(this, tcp_server::conn_start_cb_args);
+    }
+
     _loop->add_io_event(_connfd, conn_rd_callback, kReadEvent, this);
     tcp_server::increase_conn(_connfd, this);
 }
@@ -138,6 +142,10 @@ int tcp_conn::send_message(const char *data, int msglen, int msgid) {
 }
 
 void tcp_conn::clean_conn() {
+
+    if(tcp_server::conn_close_cb){
+        tcp_server::conn_close_cb(this, tcp_server::conn_close_cb_args);
+    }
 
     tcp_server::decrease_conn(_connfd);
 

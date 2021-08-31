@@ -34,5 +34,7 @@ void io_buf::copy(const io_buf *other) {
 
 void io_buf::pop(int len) {
     length -= len;
+    // 可能会存在覆盖问题, 这里删除数据
+    memset(this->data + this->head, '\0', len);
     head += len;
 }

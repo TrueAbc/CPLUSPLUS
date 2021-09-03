@@ -13,6 +13,8 @@ set(SERVER_CLASS tcp_server)
 set(BUF_TOOL buf_tool)
 set(EVENT_TOOL kqueue)
 
+set(THREAD_POOL thread_pool)
+
 set(CONN_MANAGER tcp_conn)
 set(TCP_CLIENT tcp_client)
 
@@ -40,6 +42,11 @@ add_library(
 )
 
 add_library(
+        ${THREAD_POOL} STATIC
+        src/thread_pool.cpp
+)
+
+add_library(
     ${TCP_CLIENT} SHARED
         src/tcp_client.cpp
 )
@@ -58,11 +65,17 @@ add_subdirectory(
         ${PROJECT_SOURCE_DIR}/example
 )
 
+add_subdirectory(
+        ${PROJECT_SOURCE_DIR}/test
+
+)
+
 target_link_libraries(
         ${TCP_CLIENT}
         ${BUF_TOOL}
         ${EVENT_TOOL}
 )
+
 
 # 仅仅源文件包含了tcp_server
 target_link_libraries(
@@ -74,10 +87,17 @@ target_link_libraries(
 
 )
 
+target_link_libraries(
+        ${THREAD_POOL}
+        ${EVENT_TOOL}
+        ${CONN_MANAGER}
+)
+
 # server
 target_link_libraries(
         ${SERVER_CLASS}
 
+        ${THREAD_POOL}
         ${BUF_TOOL}
         ${EVENT_TOOL}
 

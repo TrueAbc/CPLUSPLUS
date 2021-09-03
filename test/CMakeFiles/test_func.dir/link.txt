@@ -1,0 +1,1 @@
+g++ -g -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX11.3.sdk -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/test_func.dir/main.cpp.o -o ../bin/test_func   -L/Users/trueabc/Codes/Lars/libs  -Wl,-rpath,/Users/trueabc/Codes/Lars/libs ../libs/libkqueue.dylib 

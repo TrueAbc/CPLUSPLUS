@@ -1,0 +1,32 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/Users/trueabc/Codes/Lars/test/main.cpp
+event_loop.h
+/Users/trueabc/Codes/Lars/test/event_loop.h
+sys/msg.h
+-
+sys/shm.h
+-
+unistd.h
+-
+sys/fcntl.h
+-
+
+includes/event_base.h
+
+includes/event_loop.h
+sys/event.h
+-
+ext/hash_map
+-
+ext/hash_set
+-
+event_base.h
+includes/event_base.h
+

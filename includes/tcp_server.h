@@ -10,6 +10,7 @@
 #include "event_loop.h"
 #include "tcp_conn.h"
 #include "message.h"
+#include "thread_pool.h"
 
 class tcp_server{
     int _sockfd;
@@ -63,6 +64,9 @@ public:
 
     static conn_callback conn_close_cb;
     static void *conn_close_cb_args;
+
+private:
+    thread_pool *_thread_pool;
 };
 
 #endif //LARS_TCP_SERVER_H

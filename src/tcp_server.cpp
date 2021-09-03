@@ -111,6 +111,17 @@ tcp_server::tcp_server(event_loop *loop ,const char *ip, uint16_t port) {
     // 6. 链接管理
     _max_conns = MAX_CONNS;
     conns = new tcp_conn*[_max_conns+3]; // stdin, stdout, stderr已经占了前三个位置
+
+    // 7. 线程池创建
+    int thread_cnt = 3; // todo 读取配置文件
+    if(thread_cnt > 0){
+        _thread_pool = new thread_pool(thread_cnt);
+        if(_thread_pool == nullptr){
+            fprintf(stderr, "tcp server new thread pool error\n");
+            exit(1);
+        }
+    }
+
 }
 
 // 开始提供创建链接的服务
@@ -140,12 +151,26 @@ void tcp_server::do_accept() {
             if(cur_conns >= _max_conns){
                 fprintf(stderr, "too many connections, max=%d\n", _max_conns);
             } else{
-                tcp_conn *conn = new tcp_conn(connfd, _loop);
-                if(conn == nullptr){
-                    fprintf(stderr, "new tcp_conn error\n");
-                    exit(1);
+
+                if(_thread_pool != nullptr){
+                    // 线程池模式
+                    // 1. 选择线程
+                    thread_queue<task_msg>* queue = _thread_pool->get_thread();
+                    // 2. 创建新建链接的消息任务
+                    task_msg task;
+                    task.type = task_msg::NEW_CONN;
+                    task.connfd = connfd;
+
+                    //3. 添加到消息队列
+                    queue->send(task);
+                } else{
+                    tcp_conn *conn = new tcp_conn(connfd, _loop);
+                    if(conn == nullptr){
+                        fprintf(stderr, "new tcp_conn error\n");
+                        exit(1);
+                    }
+                    printf("get new connection succ!\n");
                 }
-                printf("get new connection succ!\n");
 
             }
             break;

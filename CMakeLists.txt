@@ -1,10 +1,6 @@
 cmake_minimum_required(VERSION 3.20)
 project(Lars)
 
-add_compile_options(
- -XLinker
-)
-
 set(CMAKE_C_COMPILER gcc)
 set(CMAKE_CXX_COMPILER g++)
 set(CMAKE_CXX_STANDARD 14)
@@ -17,6 +13,8 @@ set(THREAD_POOL thread_pool)
 
 set(CONN_MANAGER tcp_conn)
 set(TCP_CLIENT tcp_client)
+set(CONF_PARSER conf_parser)
+
 
 SET(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/libs)
 SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
@@ -39,6 +37,11 @@ add_library(${BUF_TOOL} SHARED
 add_library(
         ${EVENT_TOOL} SHARED
         src/event_loop.cpp
+)
+
+add_library(
+        ${CONF_PARSER} SHARED
+        src/config_file.cpp
 )
 
 add_library(
@@ -76,6 +79,10 @@ target_link_libraries(
         ${EVENT_TOOL}
 )
 
+
+target_link_libraries(
+        ${CONF_PARSER}
+)
 
 # 仅仅源文件包含了tcp_server
 target_link_libraries(

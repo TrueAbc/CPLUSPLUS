@@ -9,6 +9,7 @@ add_executable(test_client client.cpp)
 target_link_libraries(test_lars
         ${SERVER_CLASS}
         ${CONN_MANAGER}
+        ${CONF_PARSER}
         ${SERVER_CLASS}
         )
 

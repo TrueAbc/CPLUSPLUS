@@ -7,6 +7,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <arpa/inet.h>
+#include <sys/ioctl.h>
 #include <unistd.h>
 #include <cerrno>
 #include "tcp_server.h"
@@ -67,6 +68,8 @@ tcp_server::tcp_server(event_loop *loop ,const char *ip, uint16_t port) {
     // 1. 创建socket
     _sockfd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
+    ioctl(_sockfd, FIOCLEX, 1);
+    ioctl(_sockfd, FIONBIO, 1);
     if(_sockfd == -1){
         fprintf(stderr, "tcp_server::socket()\n");
         exit(-1);

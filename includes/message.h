@@ -5,7 +5,9 @@
 #ifndef LARS_MESSAGE_H
 #define LARS_MESSAGE_H
 
+#include <cstdio>
 #include "net_connection.h"
+#include <ext/hash_map>
 
 struct msg_head{
     int32_t msgid;

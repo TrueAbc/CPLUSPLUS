@@ -15,6 +15,9 @@ set(CONN_MANAGER tcp_conn)
 set(TCP_CLIENT tcp_client)
 set(CONF_PARSER conf_parser)
 
+set(UDP_SERVER udp_server)
+set(UDP_CLIENT udp_client)
+
 
 SET(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/libs)
 SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
@@ -54,6 +57,16 @@ add_library(
         src/tcp_client.cpp
 )
 
+add_library(
+        ${UDP_CLIENT} SHARED
+        src/udp_client.cpp
+)
+
+add_library(
+        ${UDP_SERVER} SHARED
+        src/udp_server.cpp
+)
+
 ## 两个库之间有相互引用, 不能是动态库
 add_library(
         ${CONN_MANAGER} STATIC
@@ -82,6 +95,14 @@ target_link_libraries(
 
 target_link_libraries(
         ${CONF_PARSER}
+)
+
+target_link_libraries(
+        ${UDP_CLIENT} ${EVENT_TOOL}
+)
+
+target_link_libraries(
+        ${UDP_SERVER} ${EVENT_TOOL}
 )
 
 # 仅仅源文件包含了tcp_server

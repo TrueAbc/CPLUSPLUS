@@ -3,6 +3,10 @@ include_directories(
         ${PROJECT_SOURCE_DIR}/includes
 )
 
+add_subdirectory(
+        ./qps_test
+)
+
 add_executable(test_lars lars_reactor.cpp)
 add_executable(test_client client.cpp)
 

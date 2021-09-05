@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.20)
 project(Lars)
 
+set(PROTOBUF_PATH /Users/trueabc/Envs/Protobuf)
+
 set(CMAKE_C_COMPILER gcc)
 set(CMAKE_CXX_COMPILER g++)
 set(CMAKE_CXX_STANDARD 14)
@@ -25,8 +27,17 @@ SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 set(CMAKE_MACOSX_RPATH 1)
 set(CMAKE_INSTALL_RPATH "${PROJECT_SOURCE_DIR}/libs")
 
+
 include_directories(
         ./includes/)
+
+include_directories(
+        ${PROTOBUF_PATH}/include
+)
+
+link_directories(
+        ${PROTOBUF_PATH}/lib
+)
 
 link_directories(
         ${PROJECT_SOURCE_DIR}/libs

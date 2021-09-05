@@ -98,11 +98,6 @@ void tcp_client::do_connect() {
 
         printf("connect %s:%d succ!\n", inet_ntoa(_server_addr.sin_addr), ntohs(_server_addr.sin_port));
 
-        const char *msg = "hello lars!";
-        int msgid = 1;
-        this->send_message(msg, strlen(msg), msgid);
-
-        this->send_message(msg, strlen(msg), 2);
     } else{
         if(errno == EINPROGRESS){
             // fd是非阻塞的, 可能出现, 但是并不表示失败的创建
@@ -192,7 +187,6 @@ int tcp_client::do_write() {
     }
 
     if(_obuf.length == 0){
-        printf("do write over,del write event\n");
         this->_loop->del_io_event(_sockfd, kWriteEvent);
     }
 

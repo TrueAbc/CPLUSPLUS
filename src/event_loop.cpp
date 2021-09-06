@@ -13,6 +13,24 @@ event_loop::event_loop() {
   }
 }
 
+void event_loop::add_task(task_func func, void *args) {
+    task_func_pair funcPair(func, args);
+    _ready_tasks.push_back(funcPair);
+}
+
+void event_loop::execute_ready_tasks() {
+    std::vector<task_func_pair>::iterator it;
+    for(it = _ready_tasks.begin(); it != _ready_tasks.end(); it++){
+        task_func func = it->first;
+        void *args = it->second;
+
+        // 执行任务
+        func(this, args);
+    }
+    // 全部执行完毕, 清空当前的_ready_tasks
+    _ready_tasks.clear();
+}
+
 void event_loop::event_process() {
     while (true){
         io_event_map_it  ev_it;
@@ -35,6 +53,9 @@ void event_loop::event_process() {
                 this->del_io_event(fd);
             }
         }
+
+        // 每次处理一组epoll_wait触发的事件之后, 处理异步任务
+        this->execute_ready_tasks();
     }
 }
 

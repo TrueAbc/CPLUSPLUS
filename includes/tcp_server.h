@@ -26,6 +26,10 @@ class tcp_server{
 
         ~tcp_server();
 
+        thread_pool *get_thread_pool(){
+            return _thread_pool;
+        }
+
 public:
     //  客户端的链接管理
     static void increase_conn(int connfd, tcp_conn *conn);
@@ -41,7 +45,7 @@ public:
 
 private:
     //todo 从配置文件读取
-#define MAX_CONNS 2
+#define MAX_CONNS 10
     static int _max_conns; // 最大链接数量
 
     static int _curr_conns;

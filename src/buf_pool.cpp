@@ -4,6 +4,7 @@
 
 
 #include "buf_pool.h"
+#include "assert.h"
 
 void pointer_test(void *ptr, const char *state){
     if(ptr == nullptr){

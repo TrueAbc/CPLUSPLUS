@@ -9,6 +9,7 @@
  *  只要有人调用task_queue::send()方法就会触发
  */
 void deal_task_message(event_loop* loop, int fd, void *args){
+    // 得到发送的消息队列
    thread_queue<task_msg>* queue = (thread_queue<task_msg>*)args;
 
    // 取出所有的任务
@@ -29,6 +30,8 @@ void deal_task_message(event_loop* loop, int fd, void *args){
 
            printf("[thread]: get new connection succ\n");
        } else if(task.type == task_msg::NEW_TASK){
+           // 当前的loop是一个thread的事件监控, 让当前loop触发task任务的回调
+           loop->add_task(task.task_cb, task.args);
            //todo 收发消息的任务
        } else{
            fprintf(stderr, "unknow task\n");
@@ -85,4 +88,17 @@ thread_queue<task_msg> *thread_pool::get_thread() {
         _index = 0;
     }
     return _queues[_index];
+}
+
+void thread_pool::send_task(task_func func, void *args) {
+    task_msg task;
+
+    for(int i=0;i<_thread_cnt;i++){
+        task.type = task_msg::NEW_TASK;
+        task.task_cb = func;
+        task.args = args;
+
+        thread_queue<task_msg> *queue = _queues[i];
+        queue->send(task);
+    }
 }

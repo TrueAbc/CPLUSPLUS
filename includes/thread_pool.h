@@ -13,6 +13,9 @@ class thread_pool{
 public:
     thread_pool(int thread_cnt);
     thread_queue<task_msg>* get_thread();
+
+    // 发送异步的task到thread_pool里的thread
+    void send_task(task_func func, void *args = nullptr);
 private:
 
     //  当前线程池中的全部消息任务队列的头指针

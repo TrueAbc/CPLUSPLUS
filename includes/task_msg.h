@@ -6,6 +6,8 @@
 #define LARS_TASK_MSG_H
 
 #include "event_loop.h"
+// 异步调用的函数类型
+typedef void (*task_func) (event_loop *loop, void *args);
 
 struct task_msg {
     enum TASK_TYPE{
@@ -20,7 +22,7 @@ struct task_msg {
 
         // 针对task, 需要传递回调函数
         struct {
-            void (*task_cb)(event_loop*, void *args);
+            task_func task_cb;
             void *args;
         };
 

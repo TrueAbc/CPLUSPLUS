@@ -42,7 +42,7 @@ public:
         // 触发消息事件的占位符
         unsigned long long idle_num = 1;
         pthread_mutex_lock(&_queue_mutex);
-        _queue.push(task);
+        _queue.emplace(task);
 
         // 触发_evfd的read事件, 处理该任务
         int ret = write(_pipe[1], &idle_num, sizeof (unsigned  long long));
@@ -50,7 +50,7 @@ public:
             perror("_evfd write");
         }
 
-        printf("write message ok\n");
+//        printf("write message ok\n");
         pthread_mutex_unlock(&_queue_mutex);
     }
 

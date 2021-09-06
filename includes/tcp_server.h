@@ -45,7 +45,7 @@ public:
 
 private:
     //todo 从配置文件读取
-#define MAX_CONNS 10
+#define MAX_CONNS 20
     static int _max_conns; // 最大链接数量
 
     static int _curr_conns;

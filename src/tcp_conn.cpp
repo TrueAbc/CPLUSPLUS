@@ -10,11 +10,6 @@
 #include "tcp_conn.h"
 #include "message.h"
 
-// 回显业务, 测试用
-void callback_busi(const char*data, uint32_t len, int msgid, void *args, tcp_conn *conn){
-    conn->send_message(data, len, msgid);
-}
-
 
 // 链接的读写事件回调
 static void conn_rd_callback(event_loop* loop, int fd, void *args){
@@ -44,11 +39,13 @@ tcp_conn::tcp_conn(int connfd, event_loop *loop) {
     }
 
     _loop->add_io_event(_connfd, conn_rd_callback, kReadEvent, this);
+    printf("add read event for fd:%d \n", _connfd);
     tcp_server::increase_conn(_connfd, this);
 }
 
 void tcp_conn::do_read() {
     // 1. 从套接字读取数据
+    printf("read data from client\n");
     int ret = ibuf.read_data(_connfd);
     if(ret == -1){
         fprintf(stderr, "read data from socket\n");

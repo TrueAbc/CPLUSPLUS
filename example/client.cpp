@@ -31,6 +31,9 @@ int main(){
 
     client.set_conn_cb(on_client_build);
     client.set_conn_cb(on_client_lost, nullptr, 1);
+
+    const char *data = "test from client";
+    client.send_message(data, strlen(data), 1);
     loop.event_process();
     return 0;
 }

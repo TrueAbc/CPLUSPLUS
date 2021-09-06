@@ -16,6 +16,7 @@ void print_lars_task(event_loop *loop, void *args){
     io_event_set::iterator it;
     for(it = fds.begin();it != fds.end() ;it++){
         int fd = *it;
+        pthread_mutex_lock(&t);
         tcp_conn *conn = tcp_server::conns[fd];
         if(conn != nullptr){
             int msgid = 101;
@@ -23,8 +24,10 @@ void print_lars_task(event_loop *loop, void *args){
             // send涉及到内部的数据保护
 
             conn->send_message(msg, strlen(msg), msgid);
-
+        }else{
+//            printf("this conn is null\n");
         }
+        pthread_mutex_unlock(&t);
     }
 }
 
@@ -32,6 +35,8 @@ void print_lars_task(event_loop *loop, void *args){
 void callback_busi(const char *data, uint32_t len, int msgid, net_connection *conn, void *user_data){
     printf("callback busi...\n");
     conn->send_message(data, len, msgid);
+
+    printf("conn param=%s\n", (const char*)conn->param);
 }
 // 打印信息回调函数
 void print_busi(const char *data, uint32_t len, int msgid, net_connection *conn, void *user_data){
@@ -45,6 +50,9 @@ void on_client_build(net_connection *conn, void *args){
     int msgid=101;
     const char *msg = "welcome! you on line---------";
     conn->send_message(msg, strlen(msg), msgid);
+
+    const char *conn_param_test = "I am the conn";
+    conn->param = (void *)conn_param_test;
 
     server->get_thread_pool()->send_task(print_lars_task);
 }

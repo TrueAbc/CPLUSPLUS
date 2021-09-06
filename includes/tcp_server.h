@@ -20,7 +20,7 @@ class tcp_server{
     event_loop* _loop;
 
     public:
-        tcp_server(event_loop* loop, const char*ip, uint16_t port);
+        tcp_server(event_loop* loop, const char*ip, uint16_t port, int thread_num=5, int max_conns=100);
 
         void do_accept();
 
@@ -45,7 +45,6 @@ public:
 
 private:
     //todo 从配置文件读取
-#define MAX_CONNS 20
     static int _max_conns; // 最大链接数量
 
     static int _curr_conns;

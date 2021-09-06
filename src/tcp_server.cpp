@@ -54,7 +54,7 @@ void accept_callback(event_loop *loop, int fd, void *args){
 }
 
 // 构造函数
-tcp_server::tcp_server(event_loop *loop ,const char *ip, uint16_t port) {
+tcp_server::tcp_server(event_loop *loop ,const char *ip, uint16_t port, int thread_num, int max_conns) {
     bzero(&_connaddr, sizeof (_connaddr));
 
     // 忽略一些信号
@@ -112,11 +112,11 @@ tcp_server::tcp_server(event_loop *loop ,const char *ip, uint16_t port) {
     _loop->add_io_event(_sockfd, accept_callback, kReadEvent, this);
 
     // 6. 链接管理
-    _max_conns = MAX_CONNS;
+    _max_conns = max_conns;
     conns = new tcp_conn*[_max_conns+3]; // stdin, stdout, stderr已经占了前三个位置
 
     // 7. 线程池创建
-    int thread_cnt = 3; // todo 读取配置文件
+    int thread_cnt = thread_num; // todo 读取配置文件
     if(thread_cnt > 0){
         _thread_pool = new thread_pool(thread_cnt);
         if(_thread_pool == nullptr){

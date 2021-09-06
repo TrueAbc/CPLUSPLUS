@@ -69,9 +69,12 @@ int main(){
     std::string ip = config_file::instance()->GetString("reactor", "ip", "0.0.0.0");
     short port = config_file::instance()->GetNumber("reactor", "port", 8888);
 
+
     printf("ip = %s, port = %d\n", ip.c_str(), port);
 
-    server = new tcp_server(&loop, ip.c_str(), port);
+    int t_num = config_file::instance()->GetNumber("reactor", "threadNum", 5);
+    int max_conn = config_file::instance()->GetNumber("reactor", "maxConn", 1024);
+    server = new tcp_server(&loop, ip.c_str(), port, t_num, max_conn);
     
 
     server->add_msg_router(1, callback_busi);

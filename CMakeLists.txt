@@ -6,6 +6,7 @@ set(PROTOBUF_PATH /Users/trueabc/Envs/Protobuf)
 set(CMAKE_C_COMPILER gcc)
 set(CMAKE_CXX_COMPILER g++)
 set(CMAKE_CXX_STANDARD 14)
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
 
 set(SERVER_CLASS tcp_server)
 set(BUF_TOOL buf_tool)

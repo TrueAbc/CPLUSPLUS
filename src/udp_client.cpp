@@ -6,6 +6,7 @@
 #include <sys/types.h>
 #include <sys/ioctl.h>
 #include <arpa/inet.h>
+#include <cstring>
 #include "unistd.h"
 
 void read_callback(event_loop* loop, int fd, void *args){

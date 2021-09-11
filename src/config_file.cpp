@@ -5,6 +5,7 @@
 #include <string>
 #include <sstream>
 #include <fstream>
+#include <strings.h>
 #include "assert.h"
 #include "config_file.h"
 

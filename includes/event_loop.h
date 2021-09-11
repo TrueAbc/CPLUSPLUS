@@ -5,7 +5,16 @@
 #ifndef LARS_EVENT_LOOP_H
 #define LARS_EVENT_LOOP_H
 
+#ifndef __linux__
 #include <sys/event.h>
+const int kReadEvent = 1;
+const int kWriteEvent = 2
+#else
+#include <sys/epoll.h>
+const int kReadEvent = EPOLLIN;
+const int kWriteEvent = EPOLLOUT;
+#endif
+
 #include <ext/hash_map>
 #include <ext/hash_set>
 #include <vector>
@@ -21,8 +30,6 @@ typedef __gnu_cxx::hash_set<int> io_event_set;
 
 typedef void (*task_func)(event_loop *loop, void *args);
 
-const int kReadEvent = 1;
-const int kWriteEvent = 2;
 
 class event_loop{
 public:
@@ -47,8 +54,13 @@ private:
     int _epfd;
     io_event_map _io_evs; // fd和对应的事件之间的关系
     io_event_set listen_fds;
+
+    #ifndef __linux__
     struct kevent _fired_evs[MAXEVENTS]; // 需要处理的event
 
+    #else
+    struct epoll_event _fired_evs[MAXEVENTS];
+    #endif
 
     typedef std::pair<task_func, void*> task_func_pair;
     // 需要被执行的task集合

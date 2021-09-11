@@ -5,6 +5,7 @@
 #include "event_loop.h"
 #include "assert.h"
 
+#ifndef __linux__
 event_loop::event_loop() {
   _epfd = kqueue();
   if(_epfd == -1){
@@ -147,3 +148,8 @@ void event_loop::del_io_event(int fd, int mask) {
         }
     }
 }
+
+#else
+
+
+#endif

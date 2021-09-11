@@ -6,7 +6,6 @@
 #define LARS_THREAD_QUEUE_H
 #include <queue>
 #include <pthread.h>
-#include <sys/event.h>
 #include <sys/shm.h>
 #include <fcntl.h>
 #include <unistd.h>

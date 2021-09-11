@@ -24,8 +24,8 @@ set(UDP_CLIENT udp_client)
 SET(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/libs)
 SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 
-set(CMAKE_MACOSX_RPATH 1)
-set(CMAKE_INSTALL_RPATH "${PROJECT_SOURCE_DIR}/libs")
+# set(CMAKE_MACOSX_RPATH 1)
+# set(CMAKE_INSTALL_RPATH "${PROJECT_SOURCE_DIR}/libs")
 
 
 include_directories(
@@ -101,6 +101,7 @@ target_link_libraries(
         ${TCP_CLIENT}
         ${BUF_TOOL}
         ${EVENT_TOOL}
+        pthread
 )
 
 
@@ -130,6 +131,7 @@ target_link_libraries(
         ${THREAD_POOL}
         ${EVENT_TOOL}
         ${CONN_MANAGER}
+        pthread
 )
 
 # server

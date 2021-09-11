@@ -5,14 +5,6 @@
 #include "event_loop.h"
 #include "assert.h"
 
-#ifndef __linux__
-event_loop::event_loop() {
-  _epfd = kqueue();
-  if(_epfd == -1){
-      fprintf(stderr, "kqueue create error\n");
-      exit(1);
-  }
-}
 
 void event_loop::add_task(task_func func, void *args) {
     task_func_pair funcPair(func, args);
@@ -30,6 +22,15 @@ void event_loop::execute_ready_tasks() {
     }
     // 全部执行完毕, 清空当前的_ready_tasks
     _ready_tasks.clear();
+}
+
+#ifndef __linux__
+event_loop::event_loop() {
+  _epfd = kqueue();
+  if(_epfd == -1){
+      fprintf(stderr, "kqueue create error\n");
+      exit(1);
+  }
 }
 
 void event_loop::event_process() {
@@ -150,6 +151,116 @@ void event_loop::del_io_event(int fd, int mask) {
 }
 
 #else
+// epoll可用的情况处理
 
+event_loop::event_loop(){
+    // wsl的create依旧需要配置size选项
+    _epfd = epoll_create(10);
+    if(_epfd == -1){
+        fprintf(stderr, "epoll create error\n");
+        exit(1);
+    }
+}
+
+void event_loop::event_process(){
+    while(true){
+        io_event_map_it ev_it;
+
+        int nfds = epoll_wait(_epfd, _fired_evs, MAXEVENTS, 10);
+        for(int i=0;i<nfds;i++){
+            ev_it = _io_evs.find(_fired_evs[i].data.fd);
+
+            assert(ev_it != _io_evs.end());
+
+            io_event *ev = &(ev_it->second);
+
+            if(_fired_evs[i].events & kReadEvent){
+                void *args = ev->rcb_args;
+                ev->read_callback(this, _fired_evs[i].data.fd, args);
+            }else if(_fired_evs[i].events & kWriteEvent){
+                void *args = ev->wcb_args;
+                ev->write_callback(this, _fired_evs[i].data.fd, args);
+            }else if(_fired_evs[i].events & (EPOLLHUP | EPOLLERR)){
+                if(ev->read_callback != nullptr){
+                    void *args = ev->rcb_args;
+                    ev->read_callback(this, _fired_evs[i].data.fd, args);
+                }else if(ev->write_callback != nullptr){
+                    void *args = ev->wcb_args;
+                    ev->write_callback(this, _fired_evs[i].data.fd, args);
+                }else{
+                    fprintf(stderr, "fd %d  get error, delete from epoll\n", _fired_evs[i].data.fd);
+                    this->del_io_event(_fired_evs[i].data.fd);
+                }
+            }
+        }
+    }
+}
+
+void event_loop::add_io_event(int fd, io_callback* proc, int mask, void *args){
+    int final_mask;
+
+    int op;
+
+    // 1. 找到当前fd是否已经有事件
+    io_event_map_it it = _io_evs.find(fd);
+    if(it == _io_evs.end()){
+        //2. 没有找到就是add
+        final_mask = mask;
+        op = EPOLL_CTL_ADD;
+    }else{
+        // 3. 如果有就是mod
+        final_mask = it->second.mask | mask;
+        op = EPOLL_CTL_MOD;
+    }
+
+    // 4. 注册回调函数
+    if(mask & kReadEvent){
+        _io_evs[fd].read_callback = proc;
+        _io_evs[fd].rcb_args = args;
+    }else if(mask & kWriteEvent){
+        _io_evs[fd].write_callback = proc;
+        _io_evs[fd].wcb_args = args;
+    }
+
+    //5. 添加到epoll堆中
+    _io_evs[fd].mask = final_mask;
+    struct epoll_event event;
+    event.events = final_mask;
+    event.data.fd = fd;
+
+    if(epoll_ctl(_epfd, op, fd, &event) == -1){
+        fprintf(stderr, "epoll ctl %d error\n", fd);
+        return;
+    }
+
+    listen_fds.insert(fd);
+}
+
+void event_loop::del_io_event(int fd){
+    _io_evs.erase(fd);
+    listen_fds.erase(fd);
+
+    epoll_ctl(_epfd, EPOLL_CTL_DEL, fd, nullptr);
+}
+
+void event_loop::del_io_event(int fd, int mask){
+    io_event_map_it it = _io_evs.find(fd);
+    if(it == _io_evs.end()){
+        return;
+    }
+
+    int &o_mask = it->second.mask;
+    o_mask = o_mask &(~mask);
+
+    if(o_mask == 0){
+        this->del_io_event(fd);
+    }else{
+        struct epoll_event event;
+        event.events = o_mask;
+        event.data.fd = fd;
+        epoll_ctl(_epfd, EPOLL_CTL_MOD, fd, &event);
+        
+    }
+}
 
 #endif

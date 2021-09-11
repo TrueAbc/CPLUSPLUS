@@ -7,6 +7,7 @@
 
 #include <ext/hash_map>
 #include <cstring>
+#include <pthread.h>
 #include "io_buf.h"
 
 

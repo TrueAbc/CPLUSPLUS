@@ -3,6 +3,7 @@
 //
 
 #include "event_loop.h"
+#include "string.h"
 #include <sys/msg.h>
 #include <sys/shm.h>
 #include <unistd.h>

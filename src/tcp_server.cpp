@@ -14,7 +14,7 @@
 #include "tcp_conn.h"
 
 // ===== 链接资源管理 =====
-tcp_conn **tcp_server::conns = nullptr;
+std::unordered_map<int, tcp_conn*> tcp_server::conns;
 
 int tcp_server::_max_conns = 0;
 int tcp_server::_curr_conns = 0;
@@ -37,7 +37,7 @@ void tcp_server::increase_conn(int connfd, tcp_conn *conn) {
 
 void tcp_server::decrease_conn(int connfd) {
     pthread_mutex_lock(&_conns_mutex);
-    conns[connfd] = nullptr;
+    conns.erase(connfd);
     _curr_conns--;
     pthread_mutex_unlock(&_conns_mutex);
 }
@@ -113,7 +113,6 @@ tcp_server::tcp_server(event_loop *loop ,const char *ip, uint16_t port, int thre
 
     // 6. 链接管理
     _max_conns = max_conns;
-    conns = new tcp_conn*[_max_conns+3]; // stdin, stdout, stderr已经占了前三个位置
 
     // 7. 线程池创建
     int thread_cnt = thread_num; // todo 读取配置文件

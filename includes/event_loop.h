@@ -8,7 +8,7 @@
 #ifndef __linux__
 #include <sys/event.h>
 const int kReadEvent = 1;
-const int kWriteEvent = 2
+const int kWriteEvent = 2;
 #else
 #include <sys/epoll.h>
 const int kReadEvent = EPOLLIN;

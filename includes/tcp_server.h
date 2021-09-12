@@ -6,6 +6,7 @@
 #define LARS_TCP_SERVER_H
 
 #include <netinet/in.h>
+#include "unordered_map"
 #include "reactor_buf.h"
 #include "event_loop.h"
 #include "tcp_conn.h"
@@ -35,7 +36,7 @@ public:
     static void increase_conn(int connfd, tcp_conn *conn);
     static void decrease_conn(int connfd);
     static void get_conn_num(int *curr_conn);
-    static tcp_conn **conns;
+    static std::unordered_map<int, tcp_conn*> conns;
 
     static msg_router router;
 

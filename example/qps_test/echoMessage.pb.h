@@ -50,7 +50,7 @@ struct TableStruct_echoMessage_2eproto {
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::FieldMetadata field_metadata[];
   static const ::PROTOBUF_NAMESPACE_ID::internal::SerializationTable serialization_table[];
-  static const uint32_t offsets[];
+  static const ::PROTOBUF_NAMESPACE_ID::uint32 offsets[];
 };
 extern const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_echoMessage_2eproto;
 namespace qps_test {
@@ -84,11 +84,7 @@ class EchoMessage final :
   }
   inline EchoMessage& operator=(EchoMessage&& from) noexcept {
     if (this == &from) return *this;
-    if (GetOwningArena() == from.GetOwningArena()
-  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
-        && GetOwningArena() != nullptr
-  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
-    ) {
+    if (GetOwningArena() == from.GetOwningArena()) {
       InternalSwap(&from);
     } else {
       CopyFrom(from);
@@ -120,12 +116,7 @@ class EchoMessage final :
   }
   inline void Swap(EchoMessage* other) {
     if (other == this) return;
-  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() != nullptr &&
-        GetOwningArena() == other->GetOwningArena()) {
-   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
     if (GetOwningArena() == other->GetOwningArena()) {
-  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
       InternalSwap(other);
     } else {
       ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
@@ -151,15 +142,15 @@ class EchoMessage final :
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
   void MergeFrom(const EchoMessage& from);
   private:
-  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from);
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message*to, const ::PROTOBUF_NAMESPACE_ID::Message&from);
   public:
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
   bool IsInitialized() const final;
 
   size_t ByteSizeLong() const final;
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  uint8_t* _InternalSerialize(
-      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
+      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
   private:
@@ -208,11 +199,11 @@ class EchoMessage final :
 
   // int32 id = 2;
   void clear_id();
-  int32_t id() const;
-  void set_id(int32_t value);
+  ::PROTOBUF_NAMESPACE_ID::int32 id() const;
+  void set_id(::PROTOBUF_NAMESPACE_ID::int32 value);
   private:
-  int32_t _internal_id() const;
-  void _internal_set_id(int32_t value);
+  ::PROTOBUF_NAMESPACE_ID::int32 _internal_id() const;
+  void _internal_set_id(::PROTOBUF_NAMESPACE_ID::int32 value);
   public:
 
   // @@protoc_insertion_point(class_scope:qps_test.EchoMessage)
@@ -223,7 +214,7 @@ class EchoMessage final :
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr content_;
-  int32_t id_;
+  ::PROTOBUF_NAMESPACE_ID::int32 id_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_echoMessage_2eproto;
 };
@@ -281,11 +272,6 @@ inline void EchoMessage::set_allocated_content(std::string* content) {
   }
   content_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), content,
       GetArenaForAllocation());
-#ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (content_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
-    content_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
-  }
-#endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   // @@protoc_insertion_point(field_set_allocated:qps_test.EchoMessage.content)
 }
 
@@ -293,18 +279,18 @@ inline void EchoMessage::set_allocated_content(std::string* content) {
 inline void EchoMessage::clear_id() {
   id_ = 0;
 }
-inline int32_t EchoMessage::_internal_id() const {
+inline ::PROTOBUF_NAMESPACE_ID::int32 EchoMessage::_internal_id() const {
   return id_;
 }
-inline int32_t EchoMessage::id() const {
+inline ::PROTOBUF_NAMESPACE_ID::int32 EchoMessage::id() const {
   // @@protoc_insertion_point(field_get:qps_test.EchoMessage.id)
   return _internal_id();
 }
-inline void EchoMessage::_internal_set_id(int32_t value) {
+inline void EchoMessage::_internal_set_id(::PROTOBUF_NAMESPACE_ID::int32 value) {
   
   id_ = value;
 }
-inline void EchoMessage::set_id(int32_t value) {
+inline void EchoMessage::set_id(::PROTOBUF_NAMESPACE_ID::int32 value) {
   _internal_set_id(value);
   // @@protoc_insertion_point(field_set:qps_test.EchoMessage.id)
 }

@@ -45,7 +45,6 @@ tcp_conn::tcp_conn(int connfd, event_loop *loop) {
 
 void tcp_conn::do_read() {
     // 1. 从套接字读取数据
-    printf("read data from client\n");
     int ret = ibuf.read_data(_connfd);
     if(ret == -1){
         fprintf(stderr, "read data from socket\n");
@@ -74,7 +73,7 @@ void tcp_conn::do_read() {
 
         // 头部已经处理完成
         ibuf.pop(MESSAGE_HEAD_LEN);
-        printf("read data:%s\n", ibuf.data());
+        printf("read data:[ %s] %d %d \n", ibuf.data(), strlen(ibuf.data()), head.msglen);
 
         tcp_server::router.call(head.msgid, head.msglen, ibuf.data(), this);
         ibuf.pop(head.msglen);

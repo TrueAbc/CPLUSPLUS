@@ -1,0 +1,89 @@
+@startuml
+'https://plantuml.com/class-diagram
+'
+skinparam groupInheritance 2
+
+
+abstract class net_connection
+
+class conn_callback
+
+
+class io_callback{}
+
+class io_event{}
+
+class io_event_map
+
+class io_event_map_it
+
+class io_event_set
+
+class task_func
+
+class event_loop
+
+class task_msg
+
+
+
+class msg_head
+
+class msg_callback
+
+class msg_router
+
+class config_file{}
+
+
+class pool_t {
+
+}
+
+class io_buf
+
+class buf_pool{
+    pool_t _pool
+
+    uint64_t _total_mem
+    {static} buf_pool* _instance;
+
+    {static} pthread_once_t  _once;
+
+    {static} pthread_mutex_t _mutex;
+
+    {static} void init()
+    {static} buf_pool* instance()
+
+    io_buf *alloc_buf(int N)
+    io_buf *alloc_buf(){return alloc_buf(m4K);};
+}
+
+class reactor_buf
+class input_buf
+class out_buf
+
+reactor_buf <|-- input_buf
+reactor_buf <|-- out_buf
+
+buf_pool *-- pool_t : 拥有 >
+
+class tcp_client
+
+class tcp_conn
+class tcp_server
+
+class thread_pool
+class thread_queue
+
+
+class udp_client
+
+class udp_server
+
+' net_connection的子类实现
+net_connection <|-- udp_client
+net_connection <|-- tcp_client
+net_connection <|-- tcp_conn
+net_connection <|-- udp_server
+@enduml
